@@ -230,6 +230,6 @@ echo "done"
 
 echo "Start docker-compose ... "
 cd ${WORK_DIR}
-docker-compose pull
+# docker-compose pull
 docker-compose -p ${PROJECT_NAME} down
 docker-compose -p ${PROJECT_NAME} up -d

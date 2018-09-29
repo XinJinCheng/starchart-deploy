@@ -67,7 +67,7 @@ function git_update(){
 
 function npm_build(){
     cd ${REPOS_DIR}/$1
-    npm install
+    npm install --registry=https://registry.npm.taobao.org
     npm run build --docker
     cd -
 }

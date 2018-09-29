@@ -1,39 +1,44 @@
-version: '2'
+version: '3.1'
 services:
-  nginx:
-    image: nginx:1.13
-    ports:
-      - "_PORT_NGINX_:80"
-    volumes:
-      - _VOLUME_HTML_:/usr/share/nginx/html:ro
-      - _VOLUME_NGINXCONF_:/etc/nginx/nginx.conf:ro
-      - _VOLUME_LOGS_:/var/log/nginx
-    command: [nginx-debug, '-g', 'daemon off;']
-    depends_on:
-      - web
+  # nginx:
+  #   image: nginx:1.13
+  #   ports:
+  #     - "_PORT_NGINX_:80"
+  #   volumes:
+  #     - _VOLUME_HTML_:/usr/share/nginx/html:ro
+  #     - _VOLUME_NGINXCONF_:/etc/nginx/nginx.conf:ro
+  #     - _VOLUME_LOGS_:/var/log/nginx
+  #   command: [nginx-debug, '-g', 'daemon off;']
+  #   depends_on:
+  #     - web
   web:
-    image: tomcat:9.0.2-jre8
+    image: tomcat:9-jre8
     ports:
       - "_PORT_TOMCAT_:8080"
     volumes:
       - _VOLUME_WEBAPPS_:/usr/local/tomcat/webapps
       - _VOLUME_LOGS_:/usr/local/tomcat/logs
+    environment: 
+      - spring.profiles.active=docker
     depends_on:
       - db
       - redis
   redis:
-    image: redis:3.2.11
+    image: redis:3
     ports:
       - "_PORT_REDIS_:6379"
   db:
-    image: mysql:5.7.20
+    image: mariadb:10
     environment:
       MYSQL_ROOT_PASSWORD: 1234abcd
-      MYSQL_DATABASE: schoolpal
-      MYSQL_USER: schoolpal
-      MYSQL_PASSWORD: schoolpal
+      MYSQL_DATABASE: starchart
+      MYSQL_USER: starchart
+      MYSQL_PASSWORD: 123456
     ports:
       - "_PORT_MYSQL_:3306"
     volumes:
       - _VOLUME_INITSQL_:/docker-entrypoint-initdb.d:ro
-
+  adminer:
+    image: adminer:4
+    ports:
+      - "_PORT_ADMINER_:8080"

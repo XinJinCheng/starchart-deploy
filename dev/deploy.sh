@@ -27,10 +27,11 @@ ORGNIZATON_NAME=XinJinCheng
 
 PROJECT_NAME=starchart
 
-PROJ_BACKEND=starchart-admin
+ADMIN_SERVICE=starchart-admin
+ADMIN_UI=starchart-admin-ui
 
 GIT_REPO_TPL=https://github.com/${ORGNIZATON_NAME}/_NAME_.git
-GIT_REPOS=(${PROJ_BACKEND})
+GIT_REPOS=(${ADMIN_SERVICE} ${ADMIN_UI})
 
 DOCKER_COMPOSE_FILE_TPL=${WORK_DIR}/docker-compose.tpl.yml
 DOCKER_COMPOSE_FILE=${WORK_DIR}/docker-compose.yml
@@ -67,7 +68,7 @@ function git_update(){
 function npm_build(){
     cd ${REPOS_DIR}/$1
     npm install
-    npm run build
+    npm run build --docker
     cd -
 }
 
@@ -190,24 +191,26 @@ for R in ${GIT_REPOS[*]}; do
     git_update "${R}"
 done
 
-# echo "Build web-static ... "
-# npm_build "web-static"
+echo "Build ${ADMIN_SERVICE} ... "
+rm -rfv ${REPOS_DIR}/${ADMIN_SERVICE}/target/*
+mvn_build "${ADMIN_SERVICE}"
 
-echo "Build ${PROJ_BACKEND} ... "
-mvn_build "${PROJ_BACKEND}"
-
-# echo "Deploy static files ... "
-# rm -rfv ${DOCKER_VOLUME}/${VOLUME_HTML}/*
-# cp -rfv ${REPOS_DIR}/web-static/build/* ${DOCKER_VOLUME}/${VOLUME_HTML}/
-# cp -rfv ${REPOS_DIR}/web-service/target/web/static/tests ${DOCKER_VOLUME}/${VOLUME_HTML}/
-
-echo "Deploy ${PROJ_BACKEND} files ... "
+echo "Deploy ${ADMIN_SERVICE} files ... "
 rm -rfv ${DOCKER_VOLUME}/${VOLUME_WEBAPPS}/*
-cp -rfv ${REPOS_DIR}/${PROJ_BACKEND}/target/*.war ${DOCKER_VOLUME}/${VOLUME_WEBAPPS}/
+cp -rfv ${REPOS_DIR}/${ADMIN_SERVICE}/target/*.war ${DOCKER_VOLUME}/${VOLUME_WEBAPPS}/
+
+echo "Build ${ADMIN_UI} ... "
+rm -rfv ${REPOS_DIR}/${ADMIN_UI}/dist/*
+npm_build "${ADMIN_UI}"
+
+echo "Deploy static files ... "
+rm -rfv ${DOCKER_VOLUME}/${VOLUME_HTML}/*
+cp -rfv ${REPOS_DIR}/${ADMIN_UI}/dist/* ${DOCKER_VOLUME}/${VOLUME_HTML}/
+# cp -rfv ${REPOS_DIR}/${ADMIN_UI}/target/web/static/tests ${DOCKER_VOLUME}/${VOLUME_HTML}/
 
 echo "Deploy config files ... "
 rm -rf ${DOCKER_VOLUME}/${VOLUME_INITSQL}/*.sql
-cp -fv ${REPOS_DIR}/${PROJ_BACKEND}/db/*.sql ${DOCKER_VOLUME}/${VOLUME_INITSQL}/
+cp -fv ${REPOS_DIR}/${ADMIN_SERVICE}/db/*.sql ${DOCKER_VOLUME}/${VOLUME_INITSQL}/
 cp -fv ${WORK_DIR}/nginx.conf ${DOCKER_VOLUME}/${VOLUME_CONF}/${VOLUME_NGINXCONF}
 
 echo -n "Generate docker-compose file ... "

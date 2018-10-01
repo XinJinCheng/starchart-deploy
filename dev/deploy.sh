@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 ############################ Configuration #################################
@@ -67,8 +67,16 @@ function git_update(){
 
 function npm_build(){
     cd ${REPOS_DIR}/$1
-    npm install --registry=https://registry.npm.taobao.org
+    npm install --registry=https://registry.npm.taobao.org --chromedriver_cdnurl=http://cdn.npm.taobao.org/dist/chromedriver
     npm run build --docker
+    cd -
+}
+
+function npm_run(){
+    cd ${REPOS_DIR}/$1
+    npm install --registry=https://registry.npm.taobao.org --chromedriver_cdnurl=http://cdn.npm.taobao.org/dist/chromedriver
+    # pm2 start npm --name "starchart-admin-ui" -- start
+    npm start
     cd -
 }
 
@@ -199,13 +207,13 @@ echo "Deploy ${ADMIN_SERVICE} files ... "
 rm -rfv ${DOCKER_VOLUME}/${VOLUME_WEBAPPS}/*
 cp -rfv ${REPOS_DIR}/${ADMIN_SERVICE}/target/*.war ${DOCKER_VOLUME}/${VOLUME_WEBAPPS}/
 
-echo "Build ${ADMIN_UI} ... "
-rm -rfv ${REPOS_DIR}/${ADMIN_UI}/dist/*
-npm_build "${ADMIN_UI}"
+# echo "Build ${ADMIN_UI} ... "
+# rm -rfv ${REPOS_DIR}/${ADMIN_UI}/dist/*
+# npm_build "${ADMIN_UI}"
 
-echo "Deploy static files ... "
-rm -rfv ${DOCKER_VOLUME}/${VOLUME_HTML}/*
-cp -rfv ${REPOS_DIR}/${ADMIN_UI}/dist/* ${DOCKER_VOLUME}/${VOLUME_HTML}/
+# echo "Deploy static files ... "
+# rm -rfv ${DOCKER_VOLUME}/${VOLUME_HTML}/*
+# cp -rfv ${REPOS_DIR}/${ADMIN_UI}/dist/* ${DOCKER_VOLUME}/${VOLUME_HTML}/
 # cp -rfv ${REPOS_DIR}/${ADMIN_UI}/target/web/static/tests ${DOCKER_VOLUME}/${VOLUME_HTML}/
 
 echo "Deploy config files ... "
@@ -233,3 +241,6 @@ cd ${WORK_DIR}
 # docker-compose pull
 docker-compose -p ${PROJECT_NAME} down
 docker-compose -p ${PROJECT_NAME} up -d
+
+echo "Run ${ADMIN_UI} ... "
+npm_run "${ADMIN_UI}"

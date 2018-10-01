@@ -1,16 +1,16 @@
 version: '3.1'
 services:
-  nginx:
-    image: nginx:1.13
-    ports:
-      - "_PORT_NGINX_:80"
-    volumes:
-      - _VOLUME_HTML_:/usr/share/nginx/html:ro
-      - _VOLUME_NGINXCONF_:/etc/nginx/nginx.conf:ro
-      - _VOLUME_LOGS_:/var/log/nginx
-    command: [nginx-debug, '-g', 'daemon off;']
-    depends_on:
-      - web
+  # nginx:
+  #   image: nginx:1.13
+  #   ports:
+  #     - "_PORT_NGINX_:80"
+  #   volumes:
+  #     - _VOLUME_HTML_:/usr/share/nginx/html:ro
+  #     - _VOLUME_NGINXCONF_:/etc/nginx/nginx.conf:ro
+  #     - _VOLUME_LOGS_:/var/log/nginx
+  #   command: [nginx-debug, '-g', 'daemon off;']
+  #   depends_on:
+  #     - web
   web:
     image: tomcat:9-jre8
     ports:

@@ -65,6 +65,13 @@ function git_update(){
 	cd -
 }
 
+function detectWSL(){
+    R=`grep -ic "microsoft" /proc/version`
+    if [ "${R}" != "0" ]; then 
+        DOCKER_VOLUME=/c/docker-volume
+    fi
+}
+
 function npm_build(){
     cd ${REPOS_DIR}/$1
     npm install --registry=https://registry.npm.taobao.org --chromedriver_cdnurl=http://cdn.npm.taobao.org/dist/chromedriver
@@ -182,6 +189,8 @@ while true; do
 done
 
 ############################ Main process #################################
+
+detectWSL
 
 echo -n "Create volume dirs ... "
 mkdir -p ${DOCKER_VOLUME}
